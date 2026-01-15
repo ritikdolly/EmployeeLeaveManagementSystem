@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyScaler Login</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="login-body">
+
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="login-container">
+        <form onsubmit="login(event)" class="login-form">
+            <div class="form-header">
+                <h2>Welcome Back</h2>
+                <p>Please log in to your account</p>
+            </div>
+
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <input id="email" type="email" placeholder="name@company.com" required>
+            </div>
+
+            <div class="input-group">
+                <label for="password">Password</label>
+                <div class="password-box">
+                    <input id="password" type="password" placeholder="Enter your password" required>
+                    <span class="toggle" onclick="togglePassword()">
+                        <!-- SVG Eye Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">Sign In</button>
+
+            <div class="form-footer">
+                <p>Forgot password? <a href="#">Contact Admin</a></p>
+            </div>
+        </form>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        function togglePassword() {
+            const password = document.getElementById("password");
+            const toggleIcon = document.querySelector(".toggle svg");
+
+            if (password.type === "password") {
+                password.type = "text";
+                toggleIcon.style.opacity = "0.5"; // Visual feedback
+            } else {
+                password.type = "password";
+                toggleIcon.style.opacity = "1";
+            }
+        }
+    </script>
+
+</body>
+
+</html>
