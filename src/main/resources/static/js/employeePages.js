@@ -1,6 +1,6 @@
 function employeeNavigate(page, element) {
   document
-    .querySelectorAll(".menu li")
+    .querySelectorAll(".nav-tab")
     .forEach((li) => li.classList.remove("active"));
   element.classList.add("active");
 
@@ -12,19 +12,68 @@ function employeeNavigate(page, element) {
 }
 
 function loadEmployeeDashboardPage(user) {
-  // In a real app complexity, fetch fresh balance here
-  document.getElementById("pageContent").innerHTML = `
-        <div class="section" style=" display: flex; align-items: center; justify-content: space-between; background:linear-gradient(90deg,#6366f1,#9333ea);color:white;">
-           <div>
-            <h2>Welcome back, ${user.name}</h2>
-            <p>Manage your time off efficiently.</p> 
+  fetch(`http://localhost:8080/api/dashboard/employee-stats?userId=${user.id}`)
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to fetch stats");
+      return res.json();
+    })
+    .then((stats) => {
+      document.getElementById("pageContent").innerHTML = `
+            <div class="welcome-banner">
+               <div class="welcome-text">
+                    <h2>Welcome back, ${user.name}</h2>
+                    <p>Manage your time off efficiently.</p> 
+               </div>
+               <div class="balance-box">
+                    <span>Leave Balance</span>
+                    <h2 id="dashBalance">${stats.leaveBalance} Days</h2>
+               </div>
             </div>
-            <div style="float:right;background:rgba(255,255,255,0.2);padding:15px;border-radius:10px">
-                <strong>Leave Balance</strong>
-                <h2 id="dashBalance">${user.leaveBalance} Days</h2>
+
+            <h3 class="section-title"><i class='bx bxs-widget'></i> Overview</h3>
+
+            <div class="cards">
+                <div class="card">
+                     <div class="card-icon green">
+                        <i class='bx bx-check-circle'></i>
+                    </div>
+                    <div class="card-info">
+                        <h4>Approved</h4>
+                        <h2>${stats.approvedRequests}</h2>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon yellow">
+                         <i class='bx bx-time-five'></i>
+                    </div>
+                    <div class="card-info">
+                        <h4>Pending</h4>
+                        <h2>${stats.pendingRequests}</h2>
+                    </div>
+                </div>
+                 <div class="card">
+                    <div class="card-icon blue">
+                        <i class='bx bx-x-circle'></i>
+                    </div>
+                    <div class="card-info">
+                        <h4>Rejected</h4>
+                        <h2>${stats.rejectedRequests}</h2>
+                    </div>
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    })
+    .catch((err) => {
+      console.error(err);
+      document.getElementById("pageContent").innerHTML = `
+            <div class="section" style="text-align: center; color: #ef4444;">
+                <i class='bx bx-error-circle' style="font-size: 48px;"></i>
+                <h3>Failed to load data</h3>
+                <p>There was an error loading your dashboard. Please try logging out and back in.</p>
+                <button class="btn btn-danger" onclick="logout()">Logout</button>
+            </div>
+        `;
+    });
 }
 
 function loadApplyLeavePage(user) {
@@ -119,7 +168,7 @@ function submitLeaveRequest(userId) {
       alert("Leave applied successfully!");
       employeeNavigate(
         "history",
-        document.querySelector(".menu li:nth-child(3)")
+        document.querySelector(".nav-tab:nth-child(3)")
       ); // Hacky nav
     })
     .catch((err) => {
@@ -141,11 +190,15 @@ function loadEmployeeHistoryPage(user) {
             : leave.status === "REJECTED"
             ? "rejected"
             : "pending";
+
+        let comment = leave.managerComment || "-";
+
         rows += `
                     <tr>
                         <td>${leave.leaveType}</td>
                         <td>${leave.startDate} to ${leave.endDate}</td>
                         <td>${leave.reason}</td>
+                        <td>${comment}</td>
                         <td><span class="badge ${badgeClass}">${leave.status}</span></td>
                     </tr>
                 `;
@@ -159,6 +212,7 @@ function loadEmployeeHistoryPage(user) {
                             <th>Type</th>
                             <th>Dates</th>
                             <th>Reason</th>
+                            <th>Manager Comment</th>
                             <th>Status</th>
                         </tr>
                         ${rows}

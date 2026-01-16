@@ -2,33 +2,38 @@ function renderManagerDashboard(user) {
   const root = document.getElementById("root");
 
   root.innerHTML = `
-        <div class="layout">
-
-            <aside class="sidebar">
-                <h2 class="logo">HyScaler</h2>
-
-                <div class="profile">
-                    <div class="avatar">S</div>
-                    <div>
+        <div class="dashboard-body">
+            <!-- Navbar -->
+            <nav class="navbar">
+                <a href="#" class="nav-brand">
+                    <i class='bx bxs-cube-alt'></i> HyScaler
+                </a>
+                <div class="nav-user">
+                    <div class="nav-profile">
                         <strong>${user.name}</strong>
-                        <p>Manager</p>
+                        <span>Manager</span>
                     </div>
+                    <div class="nav-avatar">${user.name.charAt(0)}</div>
+                    <button class="btn-logout" onclick="logout()">
+                        <i class='bx bx-log-out-circle'></i>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Main Content Container which will hold Tabs + Content -->
+            <main class="main-container">
+                 <!-- Sub Nav / Tabs inside main container for better alignment -->
+                <div class="sub-nav" style="padding: 0; margin-bottom: 30px;">
+                    <button class="nav-tab active" onclick="managerNavigate('dashboard', this)">Dashboard</button>
+                    <button class="nav-tab" onclick="managerNavigate('requests', this)">Requests</button>
+                    <button class="nav-tab" onclick="managerNavigate('employees', this)">Employees</button>
+                    <button class="nav-tab" onclick="managerNavigate('calendar', this)">Calendar</button>
                 </div>
 
-                <ul class="menu">
-                    <li class="active" onclick="managerNavigate('dashboard', this)">Dashboard</li>
-                    <li onclick="managerNavigate('calendar', this)">Calendar</li>
-                    <li onclick="managerNavigate('employees', this)">Manage Employees</li>
-                    <li onclick="managerNavigate('requests', this)">Requests</li>
-                </ul>
-
-                <button class="signout" onclick="logout()">Sign Out</button>
-            </aside>
-
-            <main class="content">
-                <div id="pageContent"></div>
+                <div id="pageContent">
+                    <!-- Dynamic Content -->
+                </div>
             </main>
-
         </div>
     `;
 

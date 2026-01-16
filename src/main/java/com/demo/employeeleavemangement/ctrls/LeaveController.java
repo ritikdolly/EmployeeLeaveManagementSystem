@@ -43,10 +43,16 @@ public class LeaveController {
         return ResponseEntity.ok(leaveService.getApprovedLeaves());
     }
 
+    @GetMapping("/history")
+    public ResponseEntity<List<LeaveRequest>> getLeavesHistory() {
+        return ResponseEntity.ok(leaveService.getLeavesHistory());
+    }
+
     @PostMapping("/{id}/approve")
-    public ResponseEntity<?> approveLeave(@PathVariable Long id, @RequestParam Long managerId) {
+    public ResponseEntity<?> approveLeave(@PathVariable Long id, @RequestParam Long managerId,
+            @RequestParam(required = false) String comment) {
         try {
-            LeaveRequest approved = leaveService.approveLeave(id, managerId);
+            LeaveRequest approved = leaveService.approveLeave(id, managerId, comment);
             return ResponseEntity.ok(approved);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -54,9 +60,10 @@ public class LeaveController {
     }
 
     @PostMapping("/{id}/reject")
-    public ResponseEntity<?> rejectLeave(@PathVariable Long id, @RequestParam Long managerId) {
+    public ResponseEntity<?> rejectLeave(@PathVariable Long id, @RequestParam Long managerId,
+            @RequestParam(required = false) String comment) {
         try {
-            LeaveRequest rejected = leaveService.rejectLeave(id, managerId);
+            LeaveRequest rejected = leaveService.rejectLeave(id, managerId, comment);
             return ResponseEntity.ok(rejected);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

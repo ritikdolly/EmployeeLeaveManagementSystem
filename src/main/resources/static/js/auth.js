@@ -38,6 +38,7 @@ function login(event) {
       window.location.href = "dashboard.html";
     })
     .catch((err) => {
+      alert("Login failed");
       console.error("Login error:", err);
     });
 }

@@ -1,6 +1,6 @@
 function managerNavigate(page, element) {
   document
-    .querySelectorAll(".menu li")
+    .querySelectorAll(".nav-tab")
     .forEach((li) => li.classList.remove("active"));
   element.classList.add("active");
 
@@ -23,22 +23,162 @@ function managerNavigate(page, element) {
 }
 
 function loadManagerDashboardPage(user) {
-  // Fetch Pending count
-  fetch("http://localhost:8080/api/leaves/pending")
-    .then((res) => res.json())
+  // Fetch Manager Stats
+  fetch("http://localhost:8080/api/dashboard/manager-stats")
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to fetch stats");
+      return res.json();
+    })
     .then((data) => {
-      const pendingCount = data.length;
-
+      // Render Dashboard Content
       document.getElementById("pageContent").innerHTML = `
                 <div class="cards">
                     <div class="card">
-                        <h4>Pending Requests</h4>
-                        <h2>${pendingCount}</h2>
+                         <div class="card-icon blue">
+                            <i class='bx bx-user'></i>
+                        </div>
+                        <div class="card-info">
+                            <h4>Total Employees</h4>
+                            <h2>${data.totalEmployees}</h2>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon yellow">
+                            <i class='bx bx-time-five'></i>
+                        </div>
+                        <div class="card-info">
+                            <h4>Pending Requests</h4>
+                            <h2>${data.pendingRequests}</h2>
+                        </div>
+                    </div>
+                    <div class="card">
+                         <div class="card-icon green">
+                            <i class='bx bx-calendar-check'></i>
+                        </div>
+                        <div class="card-info">
+                            <h4>On Leave Today</h4>
+                            <h2>${data.onLeaveToday}</h2>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Sub-Nav / Tabs (As per screenshot, simplified) -->
+                <div class="sub-nav" style="padding: 0; margin-bottom: 30px;">
+                </div>
+
+                <h3 class="section-title"><i class='bx bx-time'></i> Pending Approvals</h3>
+                <!-- Container for pending requests table if we want to show it here by default -->
+                <div id="pendingRequestsPreview" style="margin-bottom: 40px;"></div> 
+
+                <h3 class="section-title">History</h3>
+                <div id="historyPreview"></div>
             `;
+
+      // 1. Load Pending Requests Preview
+      fetch("http://localhost:8080/api/leaves/pending")
+        .then((res) => res.json())
+        .then((leaves) => {
+          const container = document.getElementById("pendingRequestsPreview");
+          if (leaves.length === 0) {
+            // Styled as per screenshot: dashed border, centered text
+            container.innerHTML = `<div style="padding: 40px; color: #64748b; background:white; border-radius:12px; border:2px dashed #e2e8f0; text-align:center;">No pending requests at the moment.</div>`;
+          } else {
+            let rows = "";
+            leaves.forEach((leave) => {
+              rows += `
+                                <tr>
+                                    <td>${
+                                      leave.user ? leave.user.name : "Unknown"
+                                    }</td>
+                                    <td>${leave.leaveType}</td>
+                                    <td>${leave.startDate} to ${
+                leave.endDate
+              }</td>
+                                    <td><span class="badge pending">Pending</span></td>
+                                </tr>
+                            `;
+            });
+
+            container.innerHTML = `
+                            <div class="table-container">
+                                <table class="table">
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Type</th>
+                                        <th>Dates</th>
+                                        <th>Status</th>
+                                    </tr>
+                                    ${rows}
+                                </table>
+                            </div>
+                          `;
+          }
+        })
+        .catch((err) => console.error(err));
+
+      // 2. Load History (Approved/Rejected)
+      fetch("http://localhost:8080/api/leaves/history") // We need to add this endpoint or reuse existing
+        .then((res) => {
+          if (res.ok) return res.json();
+          // If API doesn't exist yet, return empty list for now to not break UI
+          return [];
+        })
+        .then((leaves) => {
+          const container = document.getElementById("historyPreview");
+          let rows = "";
+          // Take last 5
+          leaves.slice(0, 5).forEach((leave) => {
+            let badgeClass =
+              leave.status === "APPROVED" ? "approved" : "rejected";
+            rows += `
+                            <tr>
+                                <td>${
+                                  leave.user ? leave.user.name : "Unknown"
+                                }</td>
+                                <td>${leave.leaveType}</td>
+                                <td>${leave.startDate} - ${leave.endDate}</td>
+                                <td>${leave.reason}</td>
+                                <td><span class="badge ${badgeClass}">${
+              leave.status
+            }</span></td>
+                                <td style="color:#94a3b8; font-size:12px;">Manager</td>
+                            </tr>
+                         `;
+          });
+
+          if (rows === "") {
+            container.innerHTML = `<div style="padding: 20px; text-align:center; color:#64748b;">No history available.</div>`;
+          } else {
+            container.innerHTML = `
+                            <div class="table-container">
+                                <table class="table">
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Type</th>
+                                        <th>Dates</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th>Actioned By</th>
+                                    </tr>
+                                    ${rows}
+                                </table>
+                            </div>
+                         `;
+          }
+        })
+        .catch((err) => console.error("History fetch error", err));
     })
-    .catch((err) => console.error(err));
+    .catch((err) => {
+      console.error(err);
+      document.getElementById("pageContent").innerHTML = `
+            <div class="section" style="text-align: center; color: #ef4444;">
+                <i class='bx bx-error-circle' style="font-size: 48px;"></i>
+                <h3>Failed to load data</h3>
+                <p>There was an error loading your dashboard. Please try logging out and back in.</p>
+                <button class="btn btn-danger" onclick="logout()">Logout</button>
+            </div>
+        `;
+    });
 }
 
 function loadManagerCalendarPage() {
@@ -61,15 +201,17 @@ function loadManagerCalendarPage() {
 
       document.getElementById("pageContent").innerHTML = `
                 <h1>Leave Calendar</h1>
-                <table class="table">
-                    <tr>
-                        <th>Employee</th>
-                        <th>Type</th>
-                        <th>Dates</th>
-                        <th>Status</th>
-                    </tr>
-                    ${rows}
-                </table>
+                <div class="table-container">
+                    <table class="table">
+                        <tr>
+                            <th>Employee</th>
+                            <th>Type</th>
+                            <th>Dates</th>
+                            <th>Status</th>
+                        </tr>
+                        ${rows}
+                    </table>
+                </div>
             `;
     });
 }
@@ -153,16 +295,18 @@ function loadManagerRequestsPage(user) {
 
       document.getElementById("pageContent").innerHTML = `
                 <h1>Pending Requests</h1>
-                <table class="table">
-                    <tr>
-                        <th>Employee</th>
-                        <th>Type</th>
-                        <th>Dates</th>
-                        <th>Reason</th>
-                        <th>Actions</th>
-                    </tr>
-                    ${rows}
-                </table>
+                <div class="table-container">
+                    <table class="table">
+                        <tr>
+                            <th>Employee</th>
+                            <th>Type</th>
+                            <th>Dates</th>
+                            <th>Reason</th>
+                            <th>Actions</th>
+                        </tr>
+                        ${rows}
+                    </table>
+                </div>
                 ${leaves.length === 0 ? "<p>No pending requests.</p>" : ""}
             `;
     });
@@ -171,12 +315,17 @@ function loadManagerRequestsPage(user) {
 function processLeave(leaveId, action, managerId) {
   if (!confirm(`Are you sure you want to ${action} this request?`)) return;
 
-  fetch(
-    `http://localhost:8080/api/leaves/${leaveId}/${action}?managerId=${managerId}`,
-    {
-      method: "POST",
-    }
-  )
+  const comment = prompt("Enter a comment for this action:");
+  if (comment === null) return; // User cancelled prompt
+
+  let url = `http://localhost:8080/api/leaves/${leaveId}/${action}?managerId=${managerId}`;
+  if (comment) {
+    url += `&comment=${encodeURIComponent(comment)}`;
+  }
+
+  fetch(url, {
+    method: "POST",
+  })
     .then((res) => {
       if (!res.ok)
         return res.text().then((t) => {

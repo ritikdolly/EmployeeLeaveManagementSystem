@@ -13,7 +13,9 @@ public interface LeaveService {
 
     List<LeaveRequest> getApprovedLeaves();
 
-    LeaveRequest approveLeave(Long leaveId, Long managerId);
+    List<LeaveRequest> getLeavesHistory();
 
-    LeaveRequest rejectLeave(Long leaveId, Long managerId);
+    LeaveRequest approveLeave(Long leaveId, Long managerId, String comment);
+
+    LeaveRequest rejectLeave(Long leaveId, Long managerId, String comment);
 }

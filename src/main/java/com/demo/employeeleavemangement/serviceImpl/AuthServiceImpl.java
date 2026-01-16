@@ -6,16 +6,17 @@ import com.demo.employeeleavemangement.repository.UserRepository;
 import com.demo.employeeleavemangement.request.LoginRequest;
 import com.demo.employeeleavemangement.request.RegisterRequest;
 import com.demo.employeeleavemangement.service.AuthService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthServiceImpl(UserRepository userRepository,
-            org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
+           PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }

@@ -38,10 +38,9 @@ public class LeaveServiceImpl implements LeaveService {
             throw new RuntimeException("Invalid date range");
         }
 
-        // Optional: Check balance here itself or wait for approval?
-        // Requirement: "Automatically deduct leave days when a leave request is
-        // approved."
-        // So we just submit here.
+        if (leaveRepository.existsOverlappingLeave(userId, request.getStartDate(), request.getEndDate())) {
+            throw new RuntimeException("You already have a leave application for these dates");
+        }
 
         request.setUser(user);
         request.setStatus(LeaveStatus.PENDING);
@@ -66,8 +65,13 @@ public class LeaveServiceImpl implements LeaveService {
     }
 
     @Override
+    public List<LeaveRequest> getLeavesHistory() {
+        return leaveRepository.findByStatusNot(LeaveStatus.PENDING);
+    }
+
+    @Override
     @Transactional
-    public LeaveRequest approveLeave(Long leaveId, Long managerId) {
+    public LeaveRequest approveLeave(Long leaveId, Long managerId, String comment) {
         LeaveRequest request = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new RuntimeException("Leave request not found"));
 
@@ -84,9 +88,6 @@ public class LeaveServiceImpl implements LeaveService {
         long days = ChronoUnit.DAYS.between(request.getStartDate(), request.getEndDate()) + 1;
 
         if (user.getLeaveBalance() < days) {
-            // Optional: Reject if insufficient balance, or allow negative?
-            // Requirement says "Maintain leave balances... Automatically deduct... "
-            // Implies we should check balance.
             throw new RuntimeException("Insufficient leave balance");
         }
 
@@ -94,13 +95,13 @@ public class LeaveServiceImpl implements LeaveService {
         userRepository.save(user);
 
         request.setStatus(LeaveStatus.APPROVED);
-        request.setManagerComment("Approved"); // Or pass from controller
+        request.setManagerComment(comment != null ? comment : "Approved");
         return leaveRepository.save(request);
     }
 
     @Override
     @Transactional
-    public LeaveRequest rejectLeave(Long leaveId, Long managerId) {
+    public LeaveRequest rejectLeave(Long leaveId, Long managerId, String comment) {
         LeaveRequest request = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new RuntimeException("Leave request not found"));
 
@@ -112,7 +113,7 @@ public class LeaveServiceImpl implements LeaveService {
         // Requirement only says "approve", but let's assume standard workflow.
 
         request.setStatus(LeaveStatus.REJECTED);
-        request.setManagerComment("Rejected");
+        request.setManagerComment(comment != null ? comment : "Rejected");
         return leaveRepository.save(request);
     }
 }

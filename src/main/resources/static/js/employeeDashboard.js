@@ -1,28 +1,37 @@
 function renderEmployeeDashboard(user) {
-  document.getElementById("root").innerHTML = `
-        <div class="layout">
-            <aside class="sidebar">
-                <h2 class="logo">HyScaler</h2>
+  const root = document.getElementById("root");
 
-                <div class="profile">
-                    <div class="avatar">E</div>
-                    <div>
+  root.innerHTML = `
+        <div class="dashboard-body">
+             <!-- Navbar -->
+            <nav class="navbar">
+                <a href="#" class="nav-brand">
+                    <i class='bx bxs-cube-alt'></i> HyScaler
+                </a>
+                <div class="nav-user">
+                    <div class="nav-profile">
                         <strong>${user.name}</strong>
-                        <p>Employee</p>
+                        <span>Employee</span>
                     </div>
+                    <div class="nav-avatar">${user.name.charAt(0)}</div>
+                    <button class="btn-logout" onclick="logout()">
+                        <i class='bx bx-log-out-circle'></i>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="main-container">
+                 <!-- Sub Nav / Tabs inside main container -->
+                <div class="sub-nav" style="padding: 0; margin-bottom: 30px;">
+                    <button class="nav-tab active" onclick="employeeNavigate('dashboard', this)">Dashboard</button>
+                    <button class="nav-tab" onclick="employeeNavigate('apply', this)">New Request</button>
+                    <button class="nav-tab" onclick="employeeNavigate('history', this)">My History</button>
                 </div>
 
-                <ul class="menu">
-                    <li class="active" onclick="employeeNavigate('dashboard', this)">Dashboard</li>
-                    <li onclick="employeeNavigate('apply', this)">Apply Leave</li>
-                    <li onclick="employeeNavigate('history', this)">My History</li>
-                </ul>
-
-                <button class="signout" onclick="logout()">Sign Out</button>
-            </aside>
-
-            <main class="content">
-                <div id="pageContent"></div>
+                <div id="pageContent">
+                    <!-- Content loads here -->
+                </div>
             </main>
         </div>
     `;
