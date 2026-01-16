@@ -37,7 +37,7 @@ function loadApplyLeavePage(user) {
                 <select id="leaveType">
                     <option value="Sick Leave">Sick Leave</option>
                     <option value="Vacation">Vacation</option>
-                    <option value="Personal">Vacation</option>
+                    <option value="Personal">Personal</option>
                 </select>
             </div>
 
