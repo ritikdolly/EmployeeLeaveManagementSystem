@@ -158,21 +158,44 @@ function submitLeaveRequest(userId) {
     body: JSON.stringify(payload),
   })
     .then((res) => {
-      if (!res.ok)
+      if (!res.ok) {
         return res.text().then((text) => {
+          // Extract the actual error message from the response
           throw new Error(text);
         });
+      }
       return res.json();
     })
     .then((data) => {
-      alert("Leave applied successfully!");
+      alert("✅ Leave applied successfully!");
+      // Clear the form
+      document.getElementById("startDate").value = "";
+      document.getElementById("endDate").value = "";
+      document.getElementById("reason").value = "";
+      document.getElementById("duration").innerText = "0 Days";
+
+      // Navigate to history
       employeeNavigate(
         "history",
-        document.querySelector(".nav-tab:nth-child(3)")
-      ); // Hacky nav
+        document.querySelector(".nav-tab:nth-child(3)"),
+      );
     })
     .catch((err) => {
-      alert("Error: " + err.message);
+      // Display clear error message to user
+      let errorMessage = err.message;
+
+      // Check if it's an overlapping leave error
+      if (errorMessage.includes("already have a leave application")) {
+        alert(
+          "❌ " +
+            errorMessage +
+            "\n\nPlease check your leave history and choose different dates.",
+        );
+      } else {
+        alert("❌ Error: " + errorMessage);
+      }
+
+      console.error("Leave application error:", err);
     });
 }
 
@@ -188,42 +211,42 @@ function loadEmployeeHistoryPage(user) {
           leave.status === "APPROVED"
             ? "approved"
             : leave.status === "REJECTED"
-            ? "rejected"
-            : "pending";
+              ? "rejected"
+              : "pending";
 
         let comment = leave.managerComment || "-";
 
         rows += `
-                    <tr>
-                        <td>${leave.leaveType}</td>
-                        <td>${leave.startDate} to ${leave.endDate}</td>
-                        <td>${leave.reason}</td>
-                        <td>${comment}</td>
-                        <td><span class="badge ${badgeClass}">${leave.status}</span></td>
-                    </tr>
-                `;
+            <tr>
+                <td>${leave.leaveType}</td>
+                <td>${leave.startDate} to ${leave.endDate}</td>
+                <td>${leave.reason}</td>
+                <td>${comment}</td>
+                <td><span class="badge ${badgeClass}">${leave.status}</span></td>
+            </tr>
+        `;
       });
 
       document.getElementById("pageContent").innerHTML = `
-                <div class="section">
-                    <h3>History</h3>
-                    <table class="table">
-                        <tr>
-                            <th>Type</th>
-                            <th>Dates</th>
-                            <th>Reason</th>
-                            <th>Manager Comment</th>
-                            <th>Status</th>
-                        </tr>
-                        ${rows}
-                    </table>
-                    ${
-                      leaves.length === 0
-                        ? '<p style="text-align:center;padding:20px">No leave history found.</p>'
-                        : ""
-                    }
-                </div>
-            `;
+            <div class="section full-width">
+                <h3>History</h3>
+                <table class="table">
+                    <tr>
+                        <th>Type</th>
+                        <th>Dates</th>
+                        <th>Reason</th>
+                        <th>Manager Comment</th>
+                        <th>Status</th>
+                    </tr>
+                    ${rows}
+                </table>
+                ${
+                  leaves.length === 0
+                    ? '<p style="text-align:center;padding:20px">No leave history found.</p>'
+                    : ""
+                }
+            </div>
+        `;
     })
     .catch((err) => console.error(err));
 }

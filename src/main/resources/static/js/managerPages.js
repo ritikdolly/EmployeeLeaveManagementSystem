@@ -86,32 +86,28 @@ function loadManagerDashboardPage(user) {
             let rows = "";
             leaves.forEach((leave) => {
               rows += `
-                                <tr>
-                                    <td>${
-                                      leave.user ? leave.user.name : "Unknown"
-                                    }</td>
-                                    <td>${leave.leaveType}</td>
-                                    <td>${leave.startDate} to ${
-                leave.endDate
-              }</td>
-                                    <td><span class="badge pending">Pending</span></td>
-                                </tr>
-                            `;
+                    <tr>
+                        <td>${leave.user ? leave.user.name : "Unknown"}</td>
+                        <td>${leave.leaveType}</td>
+                        <td>${leave.startDate} to ${leave.endDate}</td>
+                        <td><span class="badge pending">Pending</span></td>
+                    </tr>
+                `;
             });
 
             container.innerHTML = `
-                            <div class="table-container">
-                                <table class="table">
-                                    <tr>
-                                        <th>Employee</th>
-                                        <th>Type</th>
-                                        <th>Dates</th>
-                                        <th>Status</th>
-                                    </tr>
-                                    ${rows}
-                                </table>
-                            </div>
-                          `;
+              <div class="table-container">
+                  <table class="table">
+                      <tr>
+                          <th>Employee</th>
+                          <th>Type</th>
+                          <th>Dates</th>
+                          <th>Status</th>
+                      </tr>
+                      ${rows}
+                  </table>
+              </div>
+            `;
           }
         })
         .catch((err) => console.error(err));
@@ -131,39 +127,37 @@ function loadManagerDashboardPage(user) {
             let badgeClass =
               leave.status === "APPROVED" ? "approved" : "rejected";
             rows += `
-                            <tr>
-                                <td>${
-                                  leave.user ? leave.user.name : "Unknown"
-                                }</td>
-                                <td>${leave.leaveType}</td>
-                                <td>${leave.startDate} - ${leave.endDate}</td>
-                                <td>${leave.reason}</td>
-                                <td><span class="badge ${badgeClass}">${
-              leave.status
-            }</span></td>
-                                <td style="color:#94a3b8; font-size:12px;">Manager</td>
-                            </tr>
-                         `;
+                <tr>
+                    <td>${leave.user ? leave.user.name : "Unknown"}</td>
+                    <td>${leave.leaveType}</td>
+                    <td>${leave.startDate} - ${leave.endDate}</td>
+                    <td>${leave.reason}</td>
+                    <td><span class="badge ${badgeClass}">${
+                      leave.status
+                    }</span></td>
+                    <td style="color:#94a3b8; font-size:12px;">Manager</td>
+                </tr>
+              `;
           });
 
           if (rows === "") {
             container.innerHTML = `<div style="padding: 20px; text-align:center; color:#64748b;">No history available.</div>`;
           } else {
             container.innerHTML = `
-                            <div class="table-container">
-                                <table class="table">
-                                    <tr>
-                                        <th>Employee</th>
-                                        <th>Type</th>
-                                        <th>Dates</th>
-                                        <th>Reason</th>
-                                        <th>Status</th>
-                                        <th>Actioned By</th>
-                                    </tr>
-                                    ${rows}
-                                </table>
-                            </div>
-                         `;
+              <div class="table-container">
+                  <table class="table">
+                      <tr>
+                          <th>Employee</th>
+                          <th>Type</th>
+                          <th>Dates</th>
+                          <th>Reason</th>
+                          <th>Status</th>
+                          <th>Actioned By</th>
+                      </tr>
+                      ${rows}
+                  </table>
+              </div>
+            `;
           }
         })
         .catch((err) => console.error("History fetch error", err));
@@ -190,29 +184,29 @@ function loadManagerCalendarPage() {
 
       leaves.forEach((leave) => {
         rows += `
-                    <tr>
-                        <td>${leave.user ? leave.user.name : "Unknown"}</td>
-                        <td>${leave.leaveType}</td>
-                        <td>${leave.startDate} to ${leave.endDate}</td>
-                        <td><span class="badge approved">Approved</span></td>
-                    </tr>
-                `;
+          <tr>
+              <td>${leave.user ? leave.user.name : "Unknown"}</td>
+              <td>${leave.leaveType}</td>
+              <td>${leave.startDate} to ${leave.endDate}</td>
+              <td><span class="badge approved">Approved</span></td>
+          </tr>
+      `;
       });
 
       document.getElementById("pageContent").innerHTML = `
-                <h1>Leave Calendar</h1>
-                <div class="table-container">
-                    <table class="table">
-                        <tr>
-                            <th>Employee</th>
-                            <th>Type</th>
-                            <th>Dates</th>
-                            <th>Status</th>
-                        </tr>
-                        ${rows}
-                    </table>
-                </div>
-            `;
+        <h1>Leave Calendar</h1>
+        <div class="table-container">
+            <table class="table">
+                <tr>
+                    <th>Employee</th>
+                    <th>Type</th>
+                    <th>Dates</th>
+                    <th>Status</th>
+                </tr>
+                ${rows}
+            </table>
+        </div>
+    `;
     });
 }
 
@@ -276,39 +270,39 @@ function loadManagerRequestsPage(user) {
       let rows = "";
       leaves.forEach((leave) => {
         rows += `
-                    <tr>
-                        <td>${leave.user ? leave.user.name : "Unknown"}</td>
-                        <td>${leave.leaveType}</td>
-                        <td>${leave.startDate} to ${leave.endDate}</td>
-                        <td>${leave.reason}</td>
-                        <td>
-                            <button class="btn btn-primary" onclick="processLeave(${
-                              leave.id
-                            }, 'approve', ${user.id})">Approve</button>
-                            <button class="btn btn-danger" onclick="processLeave(${
-                              leave.id
-                            }, 'reject', ${user.id})">Reject</button>
-                        </td>
-                    </tr>
-                `;
+          <tr>
+              <td>${leave.user ? leave.user.name : "Unknown"}</td>
+              <td>${leave.leaveType}</td>
+              <td>${leave.startDate} to ${leave.endDate}</td>
+              <td>${leave.reason}</td>
+              <td>
+                  <button class="btn btn-primary" onclick="processLeave(${
+                    leave.id
+                  }, 'approve', ${user.id})">Approve</button>
+                  <button class="btn btn-danger" onclick="processLeave(${
+                    leave.id
+                  }, 'reject', ${user.id})">Reject</button>
+              </td>
+          </tr>
+      `;
       });
 
       document.getElementById("pageContent").innerHTML = `
-                <h1>Pending Requests</h1>
-                <div class="table-container">
-                    <table class="table">
-                        <tr>
-                            <th>Employee</th>
-                            <th>Type</th>
-                            <th>Dates</th>
-                            <th>Reason</th>
-                            <th>Actions</th>
-                        </tr>
-                        ${rows}
-                    </table>
-                </div>
-                ${leaves.length === 0 ? "<p>No pending requests.</p>" : ""}
-            `;
+          <h1>Pending Requests</h1>
+          <div class="table-container">
+              <table class="table">
+                  <tr>
+                      <th>Employee</th>
+                      <th>Type</th>
+                      <th>Dates</th>
+                      <th>Reason</th>
+                      <th>Actions</th>
+                  </tr>
+                  ${rows}
+              </table>
+          </div>
+          ${leaves.length === 0 ? "<p>No pending requests.</p>" : ""}
+      `;
     });
 }
 
