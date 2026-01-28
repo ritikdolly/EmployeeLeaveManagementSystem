@@ -51,6 +51,7 @@ public class AuthController {
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse) {
         try {
+            User user = authService.login(request);
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(),
                             request.getPassword()));
@@ -61,11 +62,9 @@ public class AuthController {
             SecurityContextHolder.setContext(context);
             securityContextRepository.saveContext(context, httpRequest, httpResponse);
 
-            User user = authService.login(request);
             return ResponseEntity.ok(user);
-        } catch (org.springframework.security.core.AuthenticationException e) {
-            // Return 401 Unauthorized for invalid credentials
-            return ResponseEntity.status(401).body("Invalid email or password");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(e.getMessage());
         }
     }
 

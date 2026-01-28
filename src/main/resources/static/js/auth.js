@@ -35,15 +35,9 @@ function login(event) {
     .then((res) => {
       if (!res.ok) {
         // Handle authentication errors
-        if (res.status === 401 || res.status === 403) {
-          throw new Error(
-            "Invalid email or password. Please check your credentials and try again.",
-          );
-        } else if (res.status === 500) {
-          throw new Error("Server error. Please try again later.");
-        } else {
-          throw new Error("Login failed. Please try again.");
-        }
+        return res.text().then((text) => {
+          throw new Error(text);
+        });
       }
       return res.json();
     })
